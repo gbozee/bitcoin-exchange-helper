@@ -14,6 +14,7 @@ setup(
         "httpx==0.6.7",
         "dateparser",
         "websockets==7.0",
+        "requests",
         # "autobahn",
         "pyOpenSSL",
         "liquidtap",
