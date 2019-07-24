@@ -11,7 +11,7 @@ setup(
     license="MIT",
     author_email="",
     install_requires=[
-        "requests_async==0.4.1",
+        "httpx==0.6.7",
         "dateparser",
         "websockets==7.0",
         # "autobahn",

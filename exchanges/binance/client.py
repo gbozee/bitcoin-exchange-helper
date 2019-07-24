@@ -2,15 +2,15 @@
 
 import hashlib
 import hmac
-import requests
 import time
 from operator import itemgetter
+
+import httpx
+import requests
+
+from .exceptions import (BinanceAPIException, BinanceRequestException,
+                         BinanceWithdrawException)
 from .helpers import date_to_milliseconds, interval_to_milliseconds
-from .exceptions import (
-    BinanceAPIException,
-    BinanceRequestException,
-    BinanceWithdrawException,
-)
 
 
 class Client(object):
@@ -103,16 +103,27 @@ class Client(object):
         # init DNS and SSL cert
         # self.ping()
 
-    def _init_session(self, _session=None):
-
-        session = _session or requests.session()
-        session.headers.update(
-            {
-                "Accept": "application/json",
+    def headers(self):
+        return {
+             "Accept": "application/json",
                 "User-Agent": "binance/python",
                 "X-MBX-APIKEY": self.API_KEY,
-            }
-        )
+        }
+
+    def _init_session(self, _session=None):
+        return self._httpx_session(_session)
+        # session = _session or requests.session()
+        # session.headers.update(
+        #     {
+        #         "Accept": "application/json",
+        #         "User-Agent": "binance/python",
+        #         "X-MBX-APIKEY": self.API_KEY,
+        #     }
+        # )
+        # return session
+
+    def _httpx_session(self, _session=None):
+        session = _session or httpx.AsyncClient()
         return session
 
     def _create_api_uri(self, path, signed=True, version=PUBLIC_API_VERSION):
@@ -189,7 +200,9 @@ class Client(object):
         if data and (method == "get" or force_params):
             kwargs["params"] = kwargs["data"]
             del kwargs["data"]
-        response = await getattr(self.session, method)(uri, **kwargs)
+        headers = kwargs.get('headers') or {}
+        headers = {**self.headers(),**headers,}
+        response = await getattr(self.session, method)(uri, headers=headers, **kwargs)
         return self._handle_response(response)
 
     async def _request_api(
@@ -2103,4 +2116,3 @@ class Client(object):
         """
         params = {"listenKey": listenKey}
         return await self._delete("userDataStream", False, data=params)
-
