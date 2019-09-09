@@ -2776,7 +2776,7 @@ class Client(object):
             "post", "margin/order", signed=True, data=params
         )
 
-    async def margin_stop_loss(self, timeInForce=TIME_IN_FORCE_GTC,kind='stop_loss', **params):
+    async def margin_stop_loss(self, timeInForce=TIME_IN_FORCE_GTC, **params):
         """Send in a new stop loss order
 
         Any order with an icebergQty MUST have timeInForce set to GTC.
@@ -2798,16 +2798,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        options = {
-            'stop_loss': self.ORDER_TYPE_STOP_LOSS_LIMIT,
-            'take_profit': self.ORDER_TYPE_TAKE_PROFIT_LIMIT
-        }
-        params.update(
-            {"type": options[kind], "timeInForce": timeInForce}
-        )
+        params.update({"timeInForce": timeInForce})
         return await self.create_margin_order(**params)
 
-    
     async def margin_stop_loss_buy(self, timeInForce=TIME_IN_FORCE_GTC, **params):
         """Send in a new stop loss order
 
@@ -2828,7 +2821,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        params.update({"side": self.SIDE_BUY})
+        params.update(
+            {"side": self.SIDE_BUY, "type": self.ORDER_TYPE_TAKE_PROFIT_LIMIT}
+        )
         return await self.margin_stop_loss(**params)
 
     async def margin_stop_loss_sell(self, timeInForce=TIME_IN_FORCE_GTC, **params):
@@ -2851,10 +2846,8 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        params.update({"side": self.SIDE_SELL})
+        params.update({"side": self.SIDE_SELL, "type": self.ORDER_TYPE_STOP_LOSS_LIMIT})
         return await self.margin_stop_loss(**params)
-
-    
 
     async def cancel_margin_order(self, **params):
         """Cancel an active order for margin account.
