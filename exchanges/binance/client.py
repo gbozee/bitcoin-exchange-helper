@@ -80,7 +80,14 @@ class Client(object):
     AGG_BEST_MATCH = "M"
     TIMEOUT = 50
 
-    def __init__(self, api_key, api_secret, session=None, requests_params=None):
+    def __init__(
+        self,
+        api_key,
+        api_secret,
+        session=None,
+        requests_params=None,
+        session_class=None,
+    ):
         """Binance API Client constructor
 
         :param api_key: Api Key
@@ -95,6 +102,7 @@ class Client(object):
         self.API_KEY = api_key
         self.API_SECRET = api_secret
         self.is_async = False
+        self.session_class = session_class
         if session:
             # self.session = session
             self.session = self._init_session(session)
@@ -195,6 +203,8 @@ class Client(object):
         if data and (method == "get" or force_params):
             kwargs["params"] = kwargs["data"]
             del kwargs["data"]
+        if self.session_class:
+            self.session = self._init_session(self.session_class())
         response = await getattr(self.session, method)(uri, **kwargs)
         return self._handle_response(response)
 
