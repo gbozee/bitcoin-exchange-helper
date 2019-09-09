@@ -17,12 +17,12 @@ class Client(object):
 
     API_URL = "https://api.binance.com/api"
     WITHDRAW_API_URL = "https://api.binance.com/wapi"
-    MARGIN_API_URL = 'https://api.binance.com/sapi'
+    MARGIN_API_URL = "https://api.binance.com/sapi"
     WEBSITE_URL = "https://www.binance.com"
     PUBLIC_API_VERSION = "v1"
     PRIVATE_API_VERSION = "v3"
     WITHDRAW_API_VERSION = "v3"
-    MARGIN_API_VERSION = 'v1'
+    MARGIN_API_VERSION = "v1"
 
     SYMBOL_TYPE_SPOT = "SPOT"
 
@@ -126,7 +126,7 @@ class Client(object):
         return self.WITHDRAW_API_URL + "/" + self.WITHDRAW_API_VERSION + "/" + path
 
     def _create_margin_api_uri(self, path):
-        return self.MARGIN_API_URL + '/' + self.MARGIN_API_VERSION + '/' + path
+        return self.MARGIN_API_URL + "/" + self.MARGIN_API_VERSION + "/" + path
 
     def _create_website_uri(self, path):
         return self.WEBSITE_URL + "/" + path
@@ -213,7 +213,6 @@ class Client(object):
         uri = self._create_margin_api_uri(path)
 
         return await self._request(method, uri, signed, **kwargs)
-
 
     async def _request_website(self, method, path, signed=False, **kwargs):
 
@@ -1859,7 +1858,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('post', 'asset/dust', True, data=params)
+        return await self._request_margin_api("post", "asset/dust", True, data=params)
 
     async def get_asset_dividend_history(self, **params):
         """Query asset dividend record.
@@ -1906,8 +1905,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await  self._request_margin_api('post', 'asset/assetDividend', True, data=params)
-
+        return await self._request_margin_api(
+            "post", "asset/assetDividend", True, data=params
+        )
 
     async def get_asset_details(self, **params):
         """Fetch details on assets.
@@ -2202,7 +2202,6 @@ class Client(object):
         params = {"listenKey": listenKey}
         return await self._delete("userDataStream", False, data=params)
 
-
     # Margin Trading Endpoints
 
     async def get_margin_account(self, **params):
@@ -2261,7 +2260,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/account', True, data=params)
+        return await self._request_margin_api(
+            "get", "margin/account", True, data=params
+        )
 
     async def get_margin_asset(self, **params):
         """Query margin asset
@@ -2291,7 +2292,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/asset', data=params)
+        return await self._request_margin_api("get", "margin/asset", data=params)
 
     async def get_margin_symbol(self, **params):
         """Query margin symbol info
@@ -2323,7 +2324,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/pair', data=params)
+        return await self._request_margin_api("get", "margin/pair", data=params)
 
     async def get_margin_price_index(self, **params):
         """Query margin priceIndex
@@ -2350,7 +2351,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/priceIndex', data=params)
+        return await self._request_margin_api("get", "margin/priceIndex", data=params)
 
     async def transfer_margin_to_spot(self, **params):
         """Execute transfer between margin account and spot account.
@@ -2379,8 +2380,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params['type'] = 2
-        return await self._request_margin_api('post', 'margin/transfer', signed=True, data=params)
+        params["type"] = 2
+        return await self._request_margin_api(
+            "post", "margin/transfer", signed=True, data=params
+        )
 
     async def transfer_spot_to_margin(self, **params):
         """Execute transfer between spot account and margin account.
@@ -2409,8 +2412,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params['type'] = 1
-        return await self._request_margin_api('post', 'margin/transfer', signed=True, data=params)
+        params["type"] = 1
+        return await self._request_margin_api(
+            "post", "margin/transfer", signed=True, data=params
+        )
 
     async def create_margin_loan(self, **params):
         """Apply for a loan.
@@ -2439,7 +2444,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('post', 'margin/loan', signed=True, data=params)
+        return await self._request_margin_api(
+            "post", "margin/loan", signed=True, data=params
+        )
 
     async def repay_margin_loan(self, **params):
         """Repay loan for margin account.
@@ -2468,7 +2475,185 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('post', 'margin/repay', signed=True, data=params)
+        return await self._request_margin_api(
+            "post", "margin/repay", signed=True, data=params
+        )
+
+    async def margin_order_market(self, **params):
+        """Send in a new market order
+
+        :param symbol: required
+        :type symbol: str
+        :param side: required
+        :type side: str
+        :param quantity: required
+        :type quantity: decimal
+        :param newClientOrderId: A unique id for the order. Automatically generated if not sent.
+        :type newClientOrderId: str
+        :param newOrderRespType: Set the response JSON. ACK, RESULT, or FULL; default: RESULT.
+        :type newOrderRespType: str
+        :param recvWindow: the number of milliseconds the request is valid for
+        :type recvWindow: int
+
+        :returns: API response
+
+        See order endpoint for full response options
+
+        :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
+
+        """
+        params.update({"type": self.ORDER_TYPE_MARKET})
+        return await self.create_margin_order(**params)
+
+    async def margin_order_market_buy(self, **params):
+        """Send in a new market buy order
+
+        :param symbol: required
+        :type symbol: str
+        :param quantity: required
+        :type quantity: decimal
+        :param newClientOrderId: A unique id for the order. Automatically generated if not sent.
+        :type newClientOrderId: str
+        :param newOrderRespType: Set the response JSON. ACK, RESULT, or FULL; default: RESULT.
+        :type newOrderRespType: str
+        :param recvWindow: the number of milliseconds the request is valid for
+        :type recvWindow: int
+
+        :returns: API response
+
+        See order endpoint for full response options
+
+        :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
+
+        """
+        params.update({"side": self.SIDE_BUY})
+        params.pop("price", None)
+        return await self.margin_order_market(**params)
+
+    async def margin_order_market_sell(self, **params):
+        """Send in a new market sell order
+
+        :param symbol: required
+        :type symbol: str
+        :param quantity: required
+        :type quantity: decimal
+        :param newClientOrderId: A unique id for the order. Automatically generated if not sent.
+        :type newClientOrderId: str
+        :param newOrderRespType: Set the response JSON. ACK, RESULT, or FULL; default: RESULT.
+        :type newOrderRespType: str
+        :param recvWindow: the number of milliseconds the request is valid for
+        :type recvWindow: int
+
+        :returns: API response
+
+        See order endpoint for full response options
+
+        :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
+
+        """
+        params.update({"side": self.SIDE_SELL})
+        params.pop("price", None)
+        return await self.margin_order_market(**params)
+
+    async def margin_order_limit_sell(self, timeInForce=TIME_IN_FORCE_GTC, **params):
+        """Send in a new limit sell order
+
+        :param symbol: required
+        :type symbol: str
+        :param quantity: required
+        :type quantity: decimal
+        :param price: required
+        :type price: str
+        :param timeInForce: default Good till cancelled
+        :type timeInForce: str
+        :param newClientOrderId: A unique id for the order. Automatically generated if not sent.
+        :type newClientOrderId: str
+        :param stopPrice: Used with stop orders
+        :type stopPrice: decimal
+        :param icebergQty: Used with iceberg orders
+        :type icebergQty: decimal
+        :param newOrderRespType: Set the response JSON. ACK, RESULT, or FULL; default: RESULT.
+        :type newOrderRespType: str
+        :param recvWindow: the number of milliseconds the request is valid for
+        :type recvWindow: int
+
+        :returns: API response
+
+        See order endpoint for full response options
+
+        :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
+
+        """
+        params.update({"side": self.SIDE_SELL})
+        return await self.margin_order_limit(timeInForce=timeInForce, **params)
+
+    async def margin_order_limit_buy(self, timeInForce=TIME_IN_FORCE_GTC, **params):
+        """Send in a new limit buy order
+
+        Any order with an icebergQty MUST have timeInForce set to GTC.
+
+        :param symbol: required
+        :type symbol: str
+        :param quantity: required
+        :type quantity: decimal
+        :param price: required
+        :type price: str
+        :param timeInForce: default Good till cancelled
+        :type timeInForce: str
+        :param newClientOrderId: A unique id for the order. Automatically generated if not sent.
+        :type newClientOrderId: str
+        :param stopPrice: Used with stop orders
+        :type stopPrice: decimal
+        :param icebergQty: Used with iceberg orders
+        :type icebergQty: decimal
+        :param newOrderRespType: Set the response JSON. ACK, RESULT, or FULL; default: RESULT.
+        :type newOrderRespType: str
+        :param recvWindow: the number of milliseconds the request is valid for
+        :type recvWindow: int
+
+        :returns: API response
+
+        See order endpoint for full response options
+
+        :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
+
+        """
+        params.update({"side": self.SIDE_BUY})
+        return await self.margin_order_limit(timeInForce=timeInForce, **params)
+
+    async def margin_order_limit(self, timeInForce=TIME_IN_FORCE_GTC, **params):
+        """Send in a new limit order
+
+        Any order with an icebergQty MUST have timeInForce set to GTC.
+
+        :param symbol: required
+        :type symbol: str
+        :param side: required
+        :type side: str
+        :param quantity: required
+        :type quantity: decimal
+        :param price: required
+        :type price: str
+        :param timeInForce: default Good till cancelled
+        :type timeInForce: str
+        :param newClientOrderId: A unique id for the order. Automatically generated if not sent.
+        :type newClientOrderId: str
+        :param icebergQty: Used with LIMIT, STOP_LOSS_LIMIT, and TAKE_PROFIT_LIMIT to create an iceberg order.
+        :type icebergQty: decimal
+        :param newOrderRespType: Set the response JSON. ACK, RESULT, or FULL; default: RESULT.
+        :type newOrderRespType: str
+        :param recvWindow: the number of milliseconds the request is valid for
+        :type recvWindow: int
+
+        :returns: API response
+
+        See order endpoint for full response options
+
+        :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
+
+        """
+        params.update({"type": self.ORDER_TYPE_LIMIT, "timeInForce": timeInForce})
+        return await self.create_margin_order(**params)
 
     async def create_margin_order(self, **params):
         """Post a new order for margin account.
@@ -2587,7 +2772,89 @@ class Client(object):
             BinanceOrderInactiveSymbolException
 
         """
-        return await self._request_margin_api('post', 'margin/order', signed=True, data=params)
+        return await self._request_margin_api(
+            "post", "margin/order", signed=True, data=params
+        )
+
+    async def margin_stop_loss(self, timeInForce=TIME_IN_FORCE_GTC,kind='stop_loss', **params):
+        """Send in a new stop loss order
+
+        Any order with an icebergQty MUST have timeInForce set to GTC.
+
+        :param symbol: required
+        :type symbol: str
+        :param side: required
+        :type side: str
+        :param quantity: required
+        :type quantity: decimal
+        :param price: required
+        :type price: str
+        :param stopPrice
+        :type stopPrice str
+        :returns: API response
+
+        See order endpoint for full response options
+
+        :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
+
+        """
+        options = {
+            'stop_loss': self.ORDER_TYPE_STOP_LOSS_LIMIT,
+            'take_profit': self.ORDER_TYPE_TAKE_PROFIT_LIMIT
+        }
+        params.update(
+            {"type": options[kind], "timeInForce": timeInForce}
+        )
+        return await self.create_margin_order(**params)
+
+    
+    async def margin_stop_loss_buy(self, timeInForce=TIME_IN_FORCE_GTC, **params):
+        """Send in a new stop loss order
+
+        Any order with an icebergQty MUST have timeInForce set to GTC.
+
+        :param symbol: required
+        :type symbol: str
+        :param quantity: required
+        :type quantity: decimal
+        :param price: required
+        :type price: str
+        :param stopPrice
+        :type stopPrice str
+        :returns: API response
+
+        See order endpoint for full response options
+
+        :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
+
+        """
+        params.update({"side": self.SIDE_BUY})
+        return await self.margin_stop_loss(**params)
+
+    async def margin_stop_loss_sell(self, timeInForce=TIME_IN_FORCE_GTC, **params):
+        """Send in a new stop loss margin order
+
+        Any order with an icebergQty MUST have timeInForce set to GTC.
+
+        :param symbol: required
+        :type symbol: str
+        :param quantity: required
+        :type quantity: decimal
+        :param price: required
+        :type price: str
+        :param stopPrice
+        :type stopPrice str
+        :returns: API response
+
+        See order endpoint for full response options
+
+        :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
+
+        """
+        params.update({"side": self.SIDE_SELL})
+        return await self.margin_stop_loss(**params)
+
+    
 
     async def cancel_margin_order(self, **params):
         """Cancel an active order for margin account.
@@ -2628,7 +2895,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await  self._request_margin_api('delete', 'margin/order', signed=True, data=params)
+        return await self._request_margin_api(
+            "delete", "margin/order", signed=True, data=params
+        )
 
     async def get_margin_loan_details(self, **params):
         """Query loan record
@@ -2670,7 +2939,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/loan', signed=True, data=params)
+        return await self._request_margin_api(
+            "get", "margin/loan", signed=True, data=params
+        )
 
     async def get_margin_repay_details(self, **params):
         """Query repay record
@@ -2718,7 +2989,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/repay', signed=True, data=params)
+        return await self._request_margin_api(
+            "get", "margin/repay", signed=True, data=params
+        )
 
     async def get_margin_order(self, **params):
         """Query margin accounts order
@@ -2762,7 +3035,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/order', signed=True, data=params)
+        return await self._request_margin_api(
+            "get", "margin/order", signed=True, data=params
+        )
 
     async def get_open_margin_orders(self, **params):
         """Query margin accounts open orders
@@ -2805,7 +3080,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/openOrders', signed=True, data=params)
+        return await self._request_margin_api(
+            "get", "margin/openOrders", signed=True, data=params
+        )
 
     async def get_all_margin_orders(self, **params):
         """Query all margin accounts orders
@@ -2862,7 +3139,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/allOrders', signed=True, data=params)
+        return await self._request_margin_api(
+            "get", "margin/allOrders", signed=True, data=params
+        )
 
     async def get_margin_trades(self, **params):
         """Query margin accounts trades
@@ -2918,7 +3197,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/myTrades', signed=True, data=params)
+        return await self._request_margin_api(
+            "get", "margin/myTrades", signed=True, data=params
+        )
 
     async def get_max_margin_loan(self, **params):
         """Query max borrow amount for an asset
@@ -2939,7 +3220,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/maxBorrowable', signed=True, data=params)
+        return await self._request_margin_api(
+            "get", "margin/maxBorrowable", signed=True, data=params
+        )
 
     async def get_max_margin_transfer(self, **params):
         """Query max transfer-out amount
@@ -2960,7 +3243,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_margin_api('get', 'margin/maxTransferable', signed=True, data=params)
+        return await self._request_margin_api(
+            "get", "margin/maxTransferable", signed=True, data=params
+        )
 
     async def margin_stream_get_listen_key(self):
         """Start a new margin data stream and return the listen key
@@ -2982,8 +3267,8 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        res = await self._request_margin_api('post', 'userDataStream', signed=True)
-        return res['listenKey']
+        res = await self._request_margin_api("post", "userDataStream", signed=True)
+        return res["listenKey"]
 
     async def margin_stream_keepalive(self, listenKey):
         """PING a margin data stream to prevent a time out.
@@ -3002,10 +3287,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params = {
-            'listenKey': listenKey
-        }
-        return await self._request_margin_api('put', 'userDataStream', signed=True, data=params)
+        params = {"listenKey": listenKey}
+        return await self._request_margin_api(
+            "put", "userDataStream", signed=True, data=params
+        )
 
     async def margin_stream_close(self, listenKey):
         """Close out a margin data stream.
@@ -3024,10 +3309,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params = {
-            'listenKey': listenKey
-        }
-        return await self._request_margin_api('delete', 'userDataStream', signed=True, data=params)
+        params = {"listenKey": listenKey}
+        return await self._request_margin_api(
+            "delete", "userDataStream", signed=True, data=params
+        )
 
     # Sub Accounts
 
@@ -3079,7 +3364,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_withdraw_api('get', 'sub-account/list.html', True, data=params)
+        return await self._request_withdraw_api(
+            "get", "sub-account/list.html", True, data=params
+        )
 
     async def get_sub_account_transfer_history(self, **params):
         """Query Sub-account Transfer History.
@@ -3126,7 +3413,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_withdraw_api('get', 'sub-account/transfer/history.html', True, data=params)
+        return await self._request_withdraw_api(
+            "get", "sub-account/transfer/history.html", True, data=params
+        )
 
     async def create_sub_account_transfer(self, **params):
         """Execute sub-account transfer
@@ -3156,7 +3445,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_withdraw_api('post', 'sub-account/transfer.html', True, data=params)
+        return await self._request_withdraw_api(
+            "post", "sub-account/transfer.html", True, data=params
+        )
 
     async def get_sub_account_assets(self, **params):
         """Fetch sub-account assets
@@ -3208,4 +3499,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return await self._request_withdraw_api('get', 'sub-account/assets.html', True, data=params)
+        return await self._request_withdraw_api(
+            "get", "sub-account/assets.html", True, data=params
+        )
+
