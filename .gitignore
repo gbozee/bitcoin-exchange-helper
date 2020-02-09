@@ -5,3 +5,7 @@ binance/__pycache__/
 build/
 dist/
 python_binance.egg-info/
+*.github
+*.pytest_cache
+*.pyc
+*.egg-info/
