@@ -13,10 +13,12 @@ class AsyncClient:
         self.api_key = api_key
         self.api_secret = api_secret
 
+    @property
+    def client(self):
+        return Client(api_key=self.api_key, api_secret=self.api_secret)
+
     async def get_client(self) -> Client:
-        return await loop_helper(
-            lambda: Client(api_key=self.api_key, api_secret=self.api_secret)
-        )
+        return await loop_helper(lambda: self.client)
 
     async def client_helper(self, function_name, *args, **kwargs):
         client = await self.get_client()
