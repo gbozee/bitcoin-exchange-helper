@@ -1965,6 +1965,12 @@ class AsyncClient:
         """
         return await self.client_helper("transfer_spot_to_margin", **params)
 
+    async def transfer_spot_to_isolated_margin(self, **params):
+        return await self.client_helper("transfer_spot_to_isolated_margin", **params)
+
+    async def transfer_isolated_margin_to_spot(self, **params):
+        return await self.client_helper("transfer_isolated_margin_to_spot", **params)
+
     async def create_margin_loan(self, **params):
         """Apply for a loan.
 
