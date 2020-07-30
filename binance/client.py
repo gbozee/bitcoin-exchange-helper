@@ -2981,6 +2981,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
+        isolated = params.pop('isolated',None)
+        if isolated:
+            params['isIsolated'] = "TRUE"
         return self._request_margin_api("get", "margin/order", signed=True, data=params)
 
     def get_open_margin_orders(self, **params):
@@ -3024,6 +3027,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
+        isolated = params.pop('isolated',None)
+        if isolated:
+            params['isIsolated'] = "TRUE"
         return self._request_margin_api(
             "get", "margin/openOrders", signed=True, data=params
         )
@@ -3083,6 +3089,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
+        isolated = params.pop('isolated',None)
+        if isolated:
+            params['isIsolated'] = "TRUE"
         return self._request_margin_api(
             "get", "margin/allOrders", signed=True, data=params
         )
@@ -3141,6 +3150,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
+        isolated = params.pop('isolated',None)
+        if isolated:
+            params['isIsolated'] = "TRUE"
         return self._request_margin_api(
             "get", "margin/myTrades", signed=True, data=params
         )
@@ -3164,6 +3176,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
+        isolated = params.pop('isolated',None)
+        if isolated:
+            params['isIsolated'] = "TRUE"
         return self._request_margin_api(
             "get", "margin/maxBorrowable", signed=True, data=params
         )
@@ -3187,6 +3202,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
+        isolated = params.pop('isolated',None)
+        if isolated:
+            params['isIsolated'] = "TRUE"
         return self._request_margin_api(
             "get", "margin/maxTransferable", signed=True, data=params
         )
