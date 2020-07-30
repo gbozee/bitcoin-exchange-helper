@@ -2845,6 +2845,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
+        isolated = params.pop('isolated',None)
+        if isolated:
+            params['isIsolated'] = "TRUE"
         return self._request_margin_api(
             "delete", "margin/order", signed=True, data=params
         )
@@ -2889,6 +2892,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
+        isolated = params.pop('isolated',None)
+        if isolated:
+            params['isIsolated'] = "TRUE"
         return self._request_margin_api("get", "margin/loan", signed=True, data=params)
 
     def get_margin_repay_details(self, **params):
@@ -2937,6 +2943,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
+        isolated = params.pop('isolated',None)
+        if isolated:
+            params['isIsolated'] = "TRUE"
         return self._request_margin_api("get", "margin/repay", signed=True, data=params)
 
     def get_margin_order(self, **params):
