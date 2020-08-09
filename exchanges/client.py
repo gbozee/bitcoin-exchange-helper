@@ -1,6 +1,10 @@
 import asyncio
 from binance.client import Client
+from greenletio import async_
 
+def sync_call(future):
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(future)
 
 async def loop_helper(callback):
     loop = asyncio.get_event_loop()
@@ -17,14 +21,21 @@ class AsyncClient:
     def client(self):
         return Client(api_key=self.api_key, api_secret=self.api_secret)
 
+    def sync_client(self):
+        return self.client
+
     async def get_client(self) -> Client:
         return await loop_helper(lambda: self.client)
 
-    async def client_helper(self, function_name, *args, **kwargs):
+    async def client_helper2(self, function_name, *args, **kwargs):
         client = await self.get_client()
         return await loop_helper(
             lambda: getattr(client, function_name)(*args, **kwargs)
         )
+
+    async def client_helper(self, function_name, *args, **kwargs):
+        func = getattr(self.client, function_name)
+        return await async_(func)(*args, **kwargs)
 
     # Exchange Endpoints
     async def get_products(self):
