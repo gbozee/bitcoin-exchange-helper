@@ -3079,7 +3079,7 @@ class AsyncClient:
         https://binance-docs.github.io/apidocs/futures/en/#change-margin-type-trade
 
         """
-        return await self.client_helper("futures_change_position_margin", **params)
+        return await self.client_helper("futures_change_margin_type", **params)
 
     async def futures_change_position_margin(self, **params):
         """Change the position margin for a symbol
