@@ -592,6 +592,8 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
+        if kwargs.pop("future", None):
+            return self._request_futures_api("get", "historicalTrades", data=params)
         return self._get("historicalTrades", data=params)
 
     def get_aggregate_trades(self, **params):
@@ -778,7 +780,7 @@ class Client(object):
         return kline[0][0]
 
     def get_historical_klines(
-        self, symbol, interval, start_str, end_str=None, limit=500
+        self, symbol, interval, start_str, end_str=None, limit=500, future=False
     ):
         """Get Historical Klines from Binance
 
@@ -829,14 +831,23 @@ class Client(object):
 
         idx = 0
         while True:
-            # fetch the klines from start_ts up to max 500 entries or the end_ts if set
-            temp_data = self.get_klines(
-                symbol=symbol,
-                interval=interval,
-                limit=limit,
-                startTime=start_ts,
-                endTime=end_ts,
-            )
+            if future:
+                temp_data = self.futures_klines(
+                    symbol=symbol,
+                    interval=interval,
+                    limit=limit,
+                    startTime=start_ts,
+                    endTime=end_ts,
+                )
+            else:
+                # fetch the klines from start_ts up to max 500 entries or the end_ts if set
+                temp_data = self.get_klines(
+                    symbol=symbol,
+                    interval=interval,
+                    limit=limit,
+                    startTime=start_ts,
+                    endTime=end_ts,
+                )
 
             # handle the case where exactly the limit amount of data was returned last loop
             if not len(temp_data):
@@ -2643,9 +2654,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        isolated  = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api("post", "margin/loan", signed=True, data=params)
 
     def repay_margin_loan(self, **params):
@@ -2675,9 +2686,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        isolated  = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api(
             "post", "margin/repay", signed=True, data=params
         )
@@ -2799,9 +2810,9 @@ class Client(object):
             BinanceOrderInactiveSymbolException
 
         """
-        isolated = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api(
             "post", "margin/order", signed=True, data=params
         )
@@ -2845,9 +2856,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        isolated = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api(
             "delete", "margin/order", signed=True, data=params
         )
@@ -2892,9 +2903,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        isolated = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api("get", "margin/loan", signed=True, data=params)
 
     def get_margin_repay_details(self, **params):
@@ -2943,9 +2954,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        isolated = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api("get", "margin/repay", signed=True, data=params)
 
     def get_margin_order(self, **params):
@@ -2990,9 +3001,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        isolated = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api("get", "margin/order", signed=True, data=params)
 
     def get_open_margin_orders(self, **params):
@@ -3036,9 +3047,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        isolated = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api(
             "get", "margin/openOrders", signed=True, data=params
         )
@@ -3098,9 +3109,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        isolated = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api(
             "get", "margin/allOrders", signed=True, data=params
         )
@@ -3159,9 +3170,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        isolated = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api(
             "get", "margin/myTrades", signed=True, data=params
         )
@@ -3185,9 +3196,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        isolated = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api(
             "get", "margin/maxBorrowable", signed=True, data=params
         )
@@ -3211,9 +3222,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        isolated = params.pop('isolated',None)
+        isolated = params.pop("isolated", None)
         if isolated:
-            params['isIsolated'] = "TRUE"
+            params["isIsolated"] = "TRUE"
         return self._request_margin_api(
             "get", "margin/maxTransferable", signed=True, data=params
         )
