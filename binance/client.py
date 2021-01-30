@@ -2544,7 +2544,12 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/account', True, data=params)
+        url = "margin/account"
+        isolated = params.pop("isolated", None)
+        if isolated:
+            url = "margin/isolated/account"
+        return self._request_margin_api("get", url, True, data=params)
+        # return self._request_margin_api('get', 'margin/account', True, data=params)
 
     def get_isolated_margin_account(self, **params):
         """Query isolated margin account details
