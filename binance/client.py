@@ -788,7 +788,7 @@ class Client(object):
         return kline[0][0]
 
     def get_historical_klines(self, symbol, interval, start_str, end_str=None,
-                              limit=500):
+                              limit=500,future=False,_type='usdt'):
         """Get Historical Klines from Binance
 
         See dateparser docs for valid start and end string formats http://dateparser.readthedocs.io/en/latest/
@@ -839,13 +839,32 @@ class Client(object):
         idx = 0
         while True:
             # fetch the klines from start_ts up to max 500 entries or the end_ts if set
-            temp_data = self.get_klines(
-                symbol=symbol,
-                interval=interval,
-                limit=limit,
-                startTime=start_ts,
-                endTime=end_ts
-            )
+            if future:
+                if _type == 'usdt':
+                    temp_data = self.futures_klines(
+                        symbol=symbol,
+                        interval=interval,
+                        limit=limit,
+                        startTime=start_ts,
+                        endTime=end_ts,
+                    )
+                else:
+                    temp_data = self.futures_coin_klines(
+                        symbol=symbol,
+                        interval=interval,
+                        limit=limit,
+                        startTime=start_ts,
+                        endTime=end_ts,
+                    )
+            else:
+                temp_data = self.get_klines(
+                    symbol=symbol,
+                    interval=interval,
+                    limit=limit,
+                    startTime=start_ts,
+                    endTime=end_ts
+                )
+
 
             # handle the case where exactly the limit amount of data was returned last loop
             if not len(temp_data):
