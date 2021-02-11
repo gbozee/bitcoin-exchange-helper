@@ -6,78 +6,82 @@ import requests
 import time
 from operator import itemgetter
 from .helpers import date_to_milliseconds, interval_to_milliseconds
-from .exceptions import BinanceAPIException, BinanceRequestException, BinanceWithdrawException
+from .exceptions import (
+    BinanceAPIException,
+    BinanceRequestException,
+    BinanceWithdrawException,
+)
 
 
 class Client(object):
 
-    API_URL = 'https://api.binance.{}/api'
-    WITHDRAW_API_URL = 'https://api.binance.{}/wapi'
-    MARGIN_API_URL = 'https://api.binance.{}/sapi'
-    WEBSITE_URL = 'https://www.binance.{}'
-    FUTURES_URL = 'https://fapi.binance.{}/fapi'
+    API_URL = "https://api.binance.{}/api"
+    WITHDRAW_API_URL = "https://api.binance.{}/wapi"
+    MARGIN_API_URL = "https://api.binance.{}/sapi"
+    WEBSITE_URL = "https://www.binance.{}"
+    FUTURES_URL = "https://fapi.binance.{}/fapi"
     FUTURES_COIN_URL = "https://dapi.binance.{}/dapi"
-    PUBLIC_API_VERSION = 'v1'
-    PRIVATE_API_VERSION = 'v3'
-    WITHDRAW_API_VERSION = 'v3'
-    MARGIN_API_VERSION = 'v1'
-    FUTURES_API_VERSION = 'v1'
+    PUBLIC_API_VERSION = "v1"
+    PRIVATE_API_VERSION = "v3"
+    WITHDRAW_API_VERSION = "v3"
+    MARGIN_API_VERSION = "v1"
+    FUTURES_API_VERSION = "v1"
     FUTURES_API_VERSION2 = "v2"
 
-    SYMBOL_TYPE_SPOT = 'SPOT'
+    SYMBOL_TYPE_SPOT = "SPOT"
 
-    ORDER_STATUS_NEW = 'NEW'
-    ORDER_STATUS_PARTIALLY_FILLED = 'PARTIALLY_FILLED'
-    ORDER_STATUS_FILLED = 'FILLED'
-    ORDER_STATUS_CANCELED = 'CANCELED'
-    ORDER_STATUS_PENDING_CANCEL = 'PENDING_CANCEL'
-    ORDER_STATUS_REJECTED = 'REJECTED'
-    ORDER_STATUS_EXPIRED = 'EXPIRED'
+    ORDER_STATUS_NEW = "NEW"
+    ORDER_STATUS_PARTIALLY_FILLED = "PARTIALLY_FILLED"
+    ORDER_STATUS_FILLED = "FILLED"
+    ORDER_STATUS_CANCELED = "CANCELED"
+    ORDER_STATUS_PENDING_CANCEL = "PENDING_CANCEL"
+    ORDER_STATUS_REJECTED = "REJECTED"
+    ORDER_STATUS_EXPIRED = "EXPIRED"
 
-    KLINE_INTERVAL_1MINUTE = '1m'
-    KLINE_INTERVAL_3MINUTE = '3m'
-    KLINE_INTERVAL_5MINUTE = '5m'
-    KLINE_INTERVAL_15MINUTE = '15m'
-    KLINE_INTERVAL_30MINUTE = '30m'
-    KLINE_INTERVAL_1HOUR = '1h'
-    KLINE_INTERVAL_2HOUR = '2h'
-    KLINE_INTERVAL_4HOUR = '4h'
-    KLINE_INTERVAL_6HOUR = '6h'
-    KLINE_INTERVAL_8HOUR = '8h'
-    KLINE_INTERVAL_12HOUR = '12h'
-    KLINE_INTERVAL_1DAY = '1d'
-    KLINE_INTERVAL_3DAY = '3d'
-    KLINE_INTERVAL_1WEEK = '1w'
-    KLINE_INTERVAL_1MONTH = '1M'
+    KLINE_INTERVAL_1MINUTE = "1m"
+    KLINE_INTERVAL_3MINUTE = "3m"
+    KLINE_INTERVAL_5MINUTE = "5m"
+    KLINE_INTERVAL_15MINUTE = "15m"
+    KLINE_INTERVAL_30MINUTE = "30m"
+    KLINE_INTERVAL_1HOUR = "1h"
+    KLINE_INTERVAL_2HOUR = "2h"
+    KLINE_INTERVAL_4HOUR = "4h"
+    KLINE_INTERVAL_6HOUR = "6h"
+    KLINE_INTERVAL_8HOUR = "8h"
+    KLINE_INTERVAL_12HOUR = "12h"
+    KLINE_INTERVAL_1DAY = "1d"
+    KLINE_INTERVAL_3DAY = "3d"
+    KLINE_INTERVAL_1WEEK = "1w"
+    KLINE_INTERVAL_1MONTH = "1M"
 
-    SIDE_BUY = 'BUY'
-    SIDE_SELL = 'SELL'
+    SIDE_BUY = "BUY"
+    SIDE_SELL = "SELL"
 
-    ORDER_TYPE_LIMIT = 'LIMIT'
-    ORDER_TYPE_MARKET = 'MARKET'
-    ORDER_TYPE_STOP_LOSS = 'STOP_LOSS'
-    ORDER_TYPE_STOP_LOSS_LIMIT = 'STOP_LOSS_LIMIT'
-    ORDER_TYPE_TAKE_PROFIT = 'TAKE_PROFIT'
-    ORDER_TYPE_TAKE_PROFIT_LIMIT = 'TAKE_PROFIT_LIMIT'
-    ORDER_TYPE_LIMIT_MAKER = 'LIMIT_MAKER'
+    ORDER_TYPE_LIMIT = "LIMIT"
+    ORDER_TYPE_MARKET = "MARKET"
+    ORDER_TYPE_STOP_LOSS = "STOP_LOSS"
+    ORDER_TYPE_STOP_LOSS_LIMIT = "STOP_LOSS_LIMIT"
+    ORDER_TYPE_TAKE_PROFIT = "TAKE_PROFIT"
+    ORDER_TYPE_TAKE_PROFIT_LIMIT = "TAKE_PROFIT_LIMIT"
+    ORDER_TYPE_LIMIT_MAKER = "LIMIT_MAKER"
 
-    TIME_IN_FORCE_GTC = 'GTC'  # Good till cancelled
-    TIME_IN_FORCE_IOC = 'IOC'  # Immediate or cancel
-    TIME_IN_FORCE_FOK = 'FOK'  # Fill or kill
+    TIME_IN_FORCE_GTC = "GTC"  # Good till cancelled
+    TIME_IN_FORCE_IOC = "IOC"  # Immediate or cancel
+    TIME_IN_FORCE_FOK = "FOK"  # Fill or kill
 
-    ORDER_RESP_TYPE_ACK = 'ACK'
-    ORDER_RESP_TYPE_RESULT = 'RESULT'
-    ORDER_RESP_TYPE_FULL = 'FULL'
+    ORDER_RESP_TYPE_ACK = "ACK"
+    ORDER_RESP_TYPE_RESULT = "RESULT"
+    ORDER_RESP_TYPE_FULL = "FULL"
 
     # For accessing the data returned by Client.aggregate_trades().
-    AGG_ID = 'a'
-    AGG_PRICE = 'p'
-    AGG_QUANTITY = 'q'
-    AGG_FIRST_TRADE_ID = 'f'
-    AGG_LAST_TRADE_ID = 'l'
-    AGG_TIME = 'T'
-    AGG_BUYER_MAKES = 'm'
-    AGG_BEST_MATCH = 'M'
+    AGG_ID = "a"
+    AGG_PRICE = "p"
+    AGG_QUANTITY = "q"
+    AGG_FIRST_TRADE_ID = "f"
+    AGG_LAST_TRADE_ID = "l"
+    AGG_TIME = "T"
+    AGG_BUYER_MAKES = "m"
+    AGG_BEST_MATCH = "M"
 
     # new asset transfer api enum
     SPOT_TO_FIAT = "MAIN_C2C"
@@ -98,7 +102,7 @@ class Client(object):
     MINING_TO_USDT_FUTURE = "MINING_UMFUTURE"
     MINING_TO_FIAT = "MINING_C2C"
 
-    def __init__(self, api_key=None, api_secret=None, requests_params=None, tld='com'):
+    def __init__(self, api_key=None, api_secret=None, requests_params=None, tld="com"):
         """Binance API Client constructor
 
         :param api_key: Api Key
@@ -129,26 +133,30 @@ class Client(object):
     def _init_session(self):
 
         session = requests.session()
-        session.headers.update({'Accept': 'application/json',
-                                'User-Agent': 'binance/python',
-                                'X-MBX-APIKEY': self.API_KEY})
+        session.headers.update(
+            {
+                "Accept": "application/json",
+                "User-Agent": "binance/python",
+                "X-MBX-APIKEY": self.API_KEY,
+            }
+        )
         return session
 
     def _create_api_uri(self, path, signed=True, version=PUBLIC_API_VERSION):
         v = self.PRIVATE_API_VERSION if signed else version
-        return self.API_URL + '/' + v + '/' + path
+        return self.API_URL + "/" + v + "/" + path
 
     def _create_withdraw_api_uri(self, path):
-        return self.WITHDRAW_API_URL + '/' + self.WITHDRAW_API_VERSION + '/' + path
+        return self.WITHDRAW_API_URL + "/" + self.WITHDRAW_API_VERSION + "/" + path
 
     def _create_margin_api_uri(self, path):
-        return self.MARGIN_API_URL + '/' + self.MARGIN_API_VERSION + '/' + path
+        return self.MARGIN_API_URL + "/" + self.MARGIN_API_VERSION + "/" + path
 
     def _create_website_uri(self, path):
-        return self.WEBSITE_URL + '/' + path
+        return self.WEBSITE_URL + "/" + path
 
     def _create_futures_api_uri(self, path):
-        return self.FUTURES_URL + '/' + self.FUTURES_API_VERSION + '/' + path
+        return self.FUTURES_URL + "/" + self.FUTURES_API_VERSION + "/" + path
 
     def _create_futures_coin_api_url(self, path, version=1):
         options = {1: self.FUTURES_API_VERSION, 2: self.FUTURES_API_VERSION2}
@@ -157,8 +165,12 @@ class Client(object):
     def _generate_signature(self, data):
 
         ordered_data = self._order_params(data)
-        query_string = '&'.join(["{}={}".format(d[0], d[1]) for d in ordered_data])
-        m = hmac.new(self.API_SECRET.encode('utf-8'), query_string.encode('utf-8'), hashlib.sha256)
+        query_string = "&".join(["{}={}".format(d[0], d[1]) for d in ordered_data])
+        m = hmac.new(
+            self.API_SECRET.encode("utf-8"),
+            query_string.encode("utf-8"),
+            hashlib.sha256,
+        )
         return m.hexdigest()
 
     def _order_params(self, data):
@@ -171,58 +183,64 @@ class Client(object):
         has_signature = False
         params = []
         for key, value in data.items():
-            if key == 'signature':
+            if key == "signature":
                 has_signature = True
             else:
                 params.append((key, value))
         # sort parameters by key
         params.sort(key=itemgetter(0))
         if has_signature:
-            params.append(('signature', data['signature']))
+            params.append(("signature", data["signature"]))
         return params
 
     def _request(self, method, uri, signed, force_params=False, **kwargs):
 
         # set default requests timeout
-        kwargs['timeout'] = 10
+        kwargs["timeout"] = 10
 
         # add our global requests params
         if self._requests_params:
             kwargs.update(self._requests_params)
 
-        data = kwargs.get('data', None)
+        data = kwargs.get("data", None)
         if data and isinstance(data, dict):
-            kwargs['data'] = data
+            kwargs["data"] = data
 
             # find any requests params passed and apply them
-            if 'requests_params' in kwargs['data']:
+            if "requests_params" in kwargs["data"]:
                 # merge requests params into kwargs
-                kwargs.update(kwargs['data']['requests_params'])
-                del(kwargs['data']['requests_params'])
+                kwargs.update(kwargs["data"]["requests_params"])
+                del kwargs["data"]["requests_params"]
 
         if signed:
             # generate signature
-            kwargs['data']['timestamp'] = int(time.time() * 1000)
-            kwargs['data']['signature'] = self._generate_signature(kwargs['data'])
+            kwargs["data"]["timestamp"] = int(time.time() * 1000)
+            kwargs["data"]["signature"] = self._generate_signature(kwargs["data"])
 
         # sort get and post params to match signature order
         if data:
             # sort post params
-            kwargs['data'] = self._order_params(kwargs['data'])
+            kwargs["data"] = self._order_params(kwargs["data"])
             # Remove any arguments with values of None.
-            null_args = [i for i, (key, value) in enumerate(kwargs['data']) if value is None]
+            null_args = [
+                i for i, (key, value) in enumerate(kwargs["data"]) if value is None
+            ]
             for i in reversed(null_args):
-                del kwargs['data'][i]
+                del kwargs["data"][i]
 
         # if get request assign data array to params value for requests lib
-        if data and (method == 'get' or force_params):
-            kwargs['params'] = '&'.join('%s=%s' % (data[0], data[1]) for data in kwargs['data'])
-            del(kwargs['data'])
+        if data and (method == "get" or force_params):
+            kwargs["params"] = "&".join(
+                "%s=%s" % (data[0], data[1]) for data in kwargs["data"]
+            )
+            del kwargs["data"]
 
         self.response = getattr(self.session, method)(uri, **kwargs)
         return self._handle_response()
 
-    def _request_api(self, method, path, signed=False, version=PUBLIC_API_VERSION, **kwargs):
+    def _request_api(
+        self, method, path, signed=False, version=PUBLIC_API_VERSION, **kwargs
+    ):
         uri = self._create_api_uri(path, signed, version)
 
         return self._request(method, uri, signed, **kwargs)
@@ -254,30 +272,29 @@ class Client(object):
 
         return self._request(method, uri, signed, True, **kwargs)
 
-
     def _handle_response(self):
         """Internal helper for handling API responses from the Binance server.
         Raises the appropriate exceptions when necessary; otherwise, returns the
         response.
         """
-        if not str(self.response.status_code).startswith('2'):
+        if not str(self.response.status_code).startswith("2"):
             raise BinanceAPIException(self.response)
         try:
             return self.response.json()
         except ValueError:
-            raise BinanceRequestException('Invalid Response: %s' % self.response.text)
+            raise BinanceRequestException("Invalid Response: %s" % self.response.text)
 
     def _get(self, path, signed=False, version=PUBLIC_API_VERSION, **kwargs):
-        return self._request_api('get', path, signed, version, **kwargs)
+        return self._request_api("get", path, signed, version, **kwargs)
 
     def _post(self, path, signed=False, version=PUBLIC_API_VERSION, **kwargs):
-        return self._request_api('post', path, signed, version, **kwargs)
+        return self._request_api("post", path, signed, version, **kwargs)
 
     def _put(self, path, signed=False, version=PUBLIC_API_VERSION, **kwargs):
-        return self._request_api('put', path, signed, version, **kwargs)
+        return self._request_api("put", path, signed, version, **kwargs)
 
     def _delete(self, path, signed=False, version=PUBLIC_API_VERSION, **kwargs):
-        return self._request_api('delete', path, signed, version, **kwargs)
+        return self._request_api("delete", path, signed, version, **kwargs)
 
     # Exchange Endpoints
 
@@ -291,7 +308,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        products = self._request_website('get', 'exchange-api/v1/public/asset-service/product/get-products')
+        products = self._request_website(
+            "get", "exchange-api/v1/public/asset-service/product/get-products"
+        )
         return products
 
     def get_exchange_info(self):
@@ -356,7 +375,7 @@ class Client(object):
 
         """
 
-        return self._get('exchangeInfo', version=self.PRIVATE_API_VERSION)
+        return self._get("exchangeInfo", version=self.PRIVATE_API_VERSION)
 
     def get_symbol_info(self, symbol):
         """Return information about a symbol
@@ -399,10 +418,10 @@ class Client(object):
 
         """
 
-        res = self._get('exchangeInfo', version=self.PRIVATE_API_VERSION)
+        res = self._get("exchangeInfo", version=self.PRIVATE_API_VERSION)
 
-        for item in res['symbols']:
-            if item['symbol'] == symbol.upper():
+        for item in res["symbols"]:
+            if item["symbol"] == symbol.upper():
                 return item
 
         return None
@@ -423,7 +442,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('ping', version=self.PRIVATE_API_VERSION)
+        return self._get("ping", version=self.PRIVATE_API_VERSION)
 
     def get_server_time(self):
         """Test connectivity to the Rest API and get the current server time.
@@ -441,7 +460,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('time', version=self.PRIVATE_API_VERSION)
+        return self._get("time", version=self.PRIVATE_API_VERSION)
 
     # Market Data Endpoints
 
@@ -468,7 +487,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('ticker/price', version=self.PRIVATE_API_VERSION)
+        return self._get("ticker/price", version=self.PRIVATE_API_VERSION)
 
     def get_orderbook_tickers(self):
         """Best price/qty on the order book for all symbols.
@@ -499,7 +518,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('ticker/bookTicker', version=self.PRIVATE_API_VERSION)
+        return self._get("ticker/bookTicker", version=self.PRIVATE_API_VERSION)
 
     def get_order_book(self, **params):
         """Get the Order Book for the market
@@ -536,7 +555,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('depth', data=params, version=self.PRIVATE_API_VERSION)
+        return self._get("depth", data=params, version=self.PRIVATE_API_VERSION)
 
     def get_recent_trades(self, **params):
         """Get recent trades (up to last 500).
@@ -566,7 +585,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('trades', data=params)
+        return self._get("trades", data=params)
 
     def get_historical_trades(self, **params):
         """Get older trades.
@@ -598,7 +617,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('historicalTrades', data=params, version=self.PRIVATE_API_VERSION)
+        return self._get(
+            "historicalTrades", data=params, version=self.PRIVATE_API_VERSION
+        )
 
     def get_aggregate_trades(self, **params):
         """Get compressed, aggregate trades. Trades that fill at the time,
@@ -637,7 +658,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('aggTrades', data=params, version=self.PRIVATE_API_VERSION)
+        return self._get("aggTrades", data=params, version=self.PRIVATE_API_VERSION)
 
     def aggregate_trade_iter(self, symbol, start_str=None, last_id=None):
         """Iterate over aggregate trade data from (start_time or last_id) to
@@ -672,7 +693,8 @@ class Client(object):
         """
         if start_str is not None and last_id is not None:
             raise ValueError(
-                'start_time and last_id may not be simultaneously specified.')
+                "start_time and last_id may not be simultaneously specified."
+            )
 
         # If there's no last_id, get one.
         if last_id is None:
@@ -694,9 +716,8 @@ class Client(object):
                 while True:
                     end_ts = start_ts + (60 * 60 * 1000)
                     trades = self.get_aggregate_trades(
-                        symbol=symbol,
-                        startTime=start_ts,
-                        endTime=end_ts)
+                        symbol=symbol, startTime=start_ts, endTime=end_ts
+                    )
                     if len(trades) > 0:
                         break
                     # If we reach present moment and find no trades then there is
@@ -765,7 +786,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('klines', data=params, version=self.PRIVATE_API_VERSION)
+        return self._get("klines", data=params, version=self.PRIVATE_API_VERSION)
 
     def _get_earliest_valid_timestamp(self, symbol, interval):
         """Get earliest valid open timestamp from Binance
@@ -779,16 +800,20 @@ class Client(object):
 
         """
         kline = self.get_klines(
-            symbol=symbol,
-            interval=interval,
-            limit=1,
-            startTime=0,
-            endTime=None
+            symbol=symbol, interval=interval, limit=1, startTime=0, endTime=None
         )
         return kline[0][0]
 
-    def get_historical_klines(self, symbol, interval, start_str, end_str=None,
-                              limit=500,future=False,_type='usdt'):
+    def get_historical_klines(
+        self,
+        symbol,
+        interval,
+        start_str,
+        end_str=None,
+        limit=500,
+        future=False,
+        _type="usdt",
+    ):
         """Get Historical Klines from Binance
 
         See dateparser docs for valid start and end string formats http://dateparser.readthedocs.io/en/latest/
@@ -840,7 +865,7 @@ class Client(object):
         while True:
             # fetch the klines from start_ts up to max 500 entries or the end_ts if set
             if future:
-                if _type == 'usdt':
+                if _type == "usdt":
                     temp_data = self.futures_klines(
                         symbol=symbol,
                         interval=interval,
@@ -862,9 +887,8 @@ class Client(object):
                     interval=interval,
                     limit=limit,
                     startTime=start_ts,
-                    endTime=end_ts
+                    endTime=end_ts,
                 )
-
 
             # handle the case where exactly the limit amount of data was returned last loop
             if not len(temp_data):
@@ -891,7 +915,9 @@ class Client(object):
 
         return output_data
 
-    def get_historical_klines_generator(self, symbol, interval, start_str, end_str=None):
+    def get_historical_klines_generator(
+        self, symbol, interval, start_str, end_str=None
+    ):
         """Get Historical Klines from Binance
 
         See dateparser docs for valid start and end string formats http://dateparser.readthedocs.io/en/latest/
@@ -943,7 +969,7 @@ class Client(object):
                 interval=interval,
                 limit=limit,
                 startTime=start_ts,
-                endTime=end_ts
+                endTime=end_ts,
             )
 
             # handle the case where exactly the limit amount of data was returned last loop
@@ -987,7 +1013,7 @@ class Client(object):
                 "price": "9.35751834"
             }
 """
-        return self._get('avgPrice', data=params, version=self.PRIVATE_API_VERSION)
+        return self._get("avgPrice", data=params, version=self.PRIVATE_API_VERSION)
 
     def get_ticker(self, **params):
         """24 hour price change statistics.
@@ -1048,7 +1074,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('ticker/24hr', data=params, version=self.PRIVATE_API_VERSION)
+        return self._get("ticker/24hr", data=params, version=self.PRIVATE_API_VERSION)
 
     def get_symbol_ticker(self, **params):
         """Latest price for a symbol or symbols.
@@ -1085,7 +1111,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('ticker/price', data=params, version=self.PRIVATE_API_VERSION)
+        return self._get("ticker/price", data=params, version=self.PRIVATE_API_VERSION)
 
     def get_orderbook_ticker(self, **params):
         """Latest price for a symbol or symbols.
@@ -1131,7 +1157,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('ticker/bookTicker', data=params, version=self.PRIVATE_API_VERSION)
+        return self._get(
+            "ticker/bookTicker", data=params, version=self.PRIVATE_API_VERSION
+        )
 
     # Account Endpoints
 
@@ -1250,7 +1278,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        return self._post('order', True, data=params)
+        return self._post("order", True, data=params)
 
     def order_limit(self, timeInForce=TIME_IN_FORCE_GTC, **params):
         """Send in a new limit order
@@ -1283,10 +1311,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        params.update({
-            'type': self.ORDER_TYPE_LIMIT,
-            'timeInForce': timeInForce
-        })
+        params.update({"type": self.ORDER_TYPE_LIMIT, "timeInForce": timeInForce})
         return self.create_order(**params)
 
     def order_limit_buy(self, timeInForce=TIME_IN_FORCE_GTC, **params):
@@ -1320,9 +1345,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        params.update({
-            'side': self.SIDE_BUY,
-        })
+        params.update(
+            {"side": self.SIDE_BUY,}
+        )
         return self.order_limit(timeInForce=timeInForce, **params)
 
     def order_limit_sell(self, timeInForce=TIME_IN_FORCE_GTC, **params):
@@ -1354,9 +1379,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        params.update({
-            'side': self.SIDE_SELL
-        })
+        params.update({"side": self.SIDE_SELL})
         return self.order_limit(timeInForce=timeInForce, **params)
 
     def order_market(self, **params):
@@ -1385,9 +1408,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        params.update({
-            'type': self.ORDER_TYPE_MARKET
-        })
+        params.update({"type": self.ORDER_TYPE_MARKET})
         return self.create_order(**params)
 
     def order_market_buy(self, **params):
@@ -1413,9 +1434,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        params.update({
-            'side': self.SIDE_BUY
-        })
+        params.update({"side": self.SIDE_BUY})
         return self.order_market(**params)
 
     def order_market_sell(self, **params):
@@ -1441,9 +1460,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        params.update({
-            'side': self.SIDE_SELL
-        })
+        params.update({"side": self.SIDE_SELL})
         return self.order_market(**params)
 
     def create_oco_order(self, **params):
@@ -1506,7 +1523,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        return self._post('order/oco', True, data=params)
+        return self._post("order/oco", True, data=params)
 
     def order_oco_buy(self, **params):
         """Send in a new OCO buy order
@@ -1545,9 +1562,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        params.update({
-            'side': self.SIDE_BUY
-        })
+        params.update({"side": self.SIDE_BUY})
         return self.create_oco_order(**params)
 
     def order_oco_sell(self, **params):
@@ -1587,9 +1602,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException, BinanceOrderException, BinanceOrderMinAmountException, BinanceOrderMinPriceException, BinanceOrderMinTotalException, BinanceOrderUnknownSymbolException, BinanceOrderInactiveSymbolException
 
         """
-        params.update({
-            'side': self.SIDE_SELL
-        })
+        params.update({"side": self.SIDE_SELL})
         return self.create_oco_order(**params)
 
     def create_test_order(self, **params):
@@ -1628,7 +1641,7 @@ class Client(object):
 
 
         """
-        return self._post('order/test', True, data=params)
+        return self._post("order/test", True, data=params)
 
     def get_order(self, **params):
         """Check an order's status. Either orderId or origClientOrderId must be sent.
@@ -1667,7 +1680,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('order', True, data=params)
+        return self._get("order", True, data=params)
 
     def get_all_orders(self, **params):
         """Get all account orders; active, canceled, or filled.
@@ -1708,7 +1721,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('allOrders', True, data=params)
+        return self._get("allOrders", True, data=params)
 
     def cancel_order(self, **params):
         """Cancel an active order. Either orderId or origClientOrderId must be sent.
@@ -1740,7 +1753,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._delete('order', True, data=params)
+        return self._delete("order", True, data=params)
 
     def get_open_orders(self, **params):
         """Get all open orders on a symbol.
@@ -1777,7 +1790,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('openOrders', True, data=params)
+        return self._get("openOrders", True, data=params)
 
     # User Stream Endpoints
     def get_account(self, **params):
@@ -1817,7 +1830,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('account', True, data=params)
+        return self._get("account", True, data=params)
 
     def get_asset_balance(self, asset, **params):
         """Get current asset balance.
@@ -1845,8 +1858,8 @@ class Client(object):
         res = self.get_account(**params)
         # find asset balance in list of balances
         if "balances" in res:
-            for bal in res['balances']:
-                if bal['asset'].lower() == asset.lower():
+            for bal in res["balances"]:
+                if bal["asset"].lower() == asset.lower():
                     return bal
         return None
 
@@ -1885,7 +1898,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._get('myTrades', True, data=params)
+        return self._get("myTrades", True, data=params)
 
     def get_system_status(self):
         """Get system status detail.
@@ -1904,7 +1917,7 @@ class Client(object):
         :raises: BinanceAPIException
 
         """
-        return self._request_withdraw_api('get', 'systemStatus.html')
+        return self._request_withdraw_api("get", "systemStatus.html")
 
     def get_account_status(self, **params):
         """Get account status detail.
@@ -1929,9 +1942,9 @@ class Client(object):
         :raises: BinanceWithdrawException
 
         """
-        res = self._request_withdraw_api('get', 'accountStatus.html', True, data=params)
-        if not res['success']:
-            raise BinanceWithdrawException(res['msg'])
+        res = self._request_withdraw_api("get", "accountStatus.html", True, data=params)
+        if not res["success"]:
+            raise BinanceWithdrawException(res["msg"])
         return res
 
     def get_dust_log(self, **params):
@@ -2010,9 +2023,11 @@ class Client(object):
         :raises: BinanceWithdrawException
 
         """
-        res = self._request_withdraw_api('get', 'userAssetDribbletLog.html', True, data=params)
-        if not res['success']:
-            raise BinanceWithdrawException(res['msg'])
+        res = self._request_withdraw_api(
+            "get", "userAssetDribbletLog.html", True, data=params
+        )
+        if not res["success"]:
+            raise BinanceWithdrawException(res["msg"])
         return res
 
     def transfer_dust(self, **params):
@@ -2051,7 +2066,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'asset/dust', True, data=params)
+        return self._request_margin_api("post", "asset/dust", True, data=params)
 
     def get_asset_dividend_history(self, **params):
         """Query asset dividend record.
@@ -2098,7 +2113,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'asset/assetDividend', True, data=params)
+        return self._request_margin_api(
+            "post", "asset/assetDividend", True, data=params
+        )
 
     def make_universal_transfer(self, **params):
         """User Universal Transfer
@@ -2130,7 +2147,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'asset/transfer', signed=True, data=params)
+        return self._request_margin_api(
+            "post", "asset/transfer", signed=True, data=params
+        )
 
     def query_universal_transfer_history(self, **params):
         """Query User Universal Transfer History
@@ -2184,7 +2203,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'asset/transfer', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "asset/transfer", signed=True, data=params
+        )
 
     def get_trade_fee(self, **params):
         """Get trade fee.
@@ -2218,9 +2239,9 @@ class Client(object):
         :raises: BinanceWithdrawException
 
         """
-        res = self._request_withdraw_api('get', 'tradeFee.html', True, data=params)
-        if not res['success']:
-            raise BinanceWithdrawException(res['msg'])
+        res = self._request_withdraw_api("get", "tradeFee.html", True, data=params)
+        if not res["success"]:
+            raise BinanceWithdrawException(res["msg"])
         return res
 
     def get_asset_details(self, **params):
@@ -2257,9 +2278,9 @@ class Client(object):
         :raises: BinanceWithdrawException
 
         """
-        res = self._request_withdraw_api('get', 'assetDetail.html', True, data=params)
-        if not res['success']:
-            raise BinanceWithdrawException(res['msg'])
+        res = self._request_withdraw_api("get", "assetDetail.html", True, data=params)
+        if not res["success"]:
+            raise BinanceWithdrawException(res["msg"])
         return res
 
     # Withdraw Endpoints
@@ -2301,11 +2322,11 @@ class Client(object):
 
         """
         # force a name for the withdrawal if one not set
-        if 'asset' in params and 'name' not in params:
-            params['name'] = params['asset']
-        res = self._request_withdraw_api('post', 'withdraw.html', True, data=params)
-        if not res['success']:
-            raise BinanceWithdrawException(res['msg'])
+        if "asset" in params and "name" not in params:
+            params["name"] = params["asset"]
+        res = self._request_withdraw_api("post", "withdraw.html", True, data=params)
+        if not res["success"]:
+            raise BinanceWithdrawException(res["msg"])
         return res
 
     def get_deposit_history(self, **params):
@@ -2343,7 +2364,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_withdraw_api('get', 'depositHistory.html', True, data=params)
+        return self._request_withdraw_api(
+            "get", "depositHistory.html", True, data=params
+        )
 
     def get_withdraw_history(self, **params):
         """Fetch withdraw history.
@@ -2389,7 +2412,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_withdraw_api('get', 'withdrawHistory.html', True, data=params)
+        return self._request_withdraw_api(
+            "get", "withdrawHistory.html", True, data=params
+        )
 
     def get_deposit_address(self, **params):
         """Fetch a deposit address for a symbol
@@ -2415,7 +2440,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_withdraw_api('get', 'depositAddress.html', True, data=params)
+        return self._request_withdraw_api(
+            "get", "depositAddress.html", True, data=params
+        )
 
     # User Stream Endpoints
 
@@ -2439,8 +2466,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        res = self._post('userDataStream', False, data={}, version=self.PRIVATE_API_VERSION)
-        return res['listenKey']
+        res = self._post(
+            "userDataStream", False, data={}, version=self.PRIVATE_API_VERSION
+        )
+        return res["listenKey"]
 
     def stream_keepalive(self, listenKey):
         """PING a user data stream to prevent a time out.
@@ -2459,10 +2488,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params = {
-            'listenKey': listenKey
-        }
-        return self._put('userDataStream', False, data=params, version=self.PRIVATE_API_VERSION)
+        params = {"listenKey": listenKey}
+        return self._put(
+            "userDataStream", False, data=params, version=self.PRIVATE_API_VERSION
+        )
 
     def stream_close(self, listenKey):
         """Close out a user data stream.
@@ -2481,10 +2510,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params = {
-            'listenKey': listenKey
-        }
-        return self._delete('userDataStream', False, data=params, version=self.PRIVATE_API_VERSION)
+        params = {"listenKey": listenKey}
+        return self._delete(
+            "userDataStream", False, data=params, version=self.PRIVATE_API_VERSION
+        )
 
     # Margin Trading Endpoints
 
@@ -2660,7 +2689,9 @@ class Client(object):
                 }
 
         """
-        return self._request_margin_api('get', 'margin/isolated/account', True, data=params)
+        return self._request_margin_api(
+            "get", "margin/isolated/account", True, data=params
+        )
 
     def get_margin_asset(self, **params):
         """Query cross-margin asset
@@ -2690,7 +2721,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/asset', data=params)
+        return self._request_margin_api("get", "margin/asset", data=params)
 
     def get_margin_symbol(self, **params):
         """Query cross-margin symbol info
@@ -2722,7 +2753,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/pair', data=params)
+        return self._request_margin_api("get", "margin/pair", data=params)
 
     def create_isolated_margin_account(self, **params):
         """Create isolated margin account for symbol
@@ -2751,8 +2782,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'margin/isolated/create', signed=True, data=params)
-
+        return self._request_margin_api(
+            "post", "margin/isolated/create", signed=True, data=params
+        )
 
     def get_isolated_margin_symbol(self, **params):
         """Query isolated margin symbol info
@@ -2783,7 +2815,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/isolated/pair', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "margin/isolated/pair", signed=True, data=params
+        )
 
     def get_all_isolated_margin_symbols(self, **params):
         """Query isolated margin symbol info for all pairs
@@ -2821,7 +2855,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/isolated/allPairs', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "margin/isolated/allPairs", signed=True, data=params
+        )
 
     def toggle_bnb_burn_spot_margin(self, **params):
         """Toggle BNB Burn On Spot Trade And Margin Interest
@@ -2850,7 +2886,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'bnbBurn', signed=True, data=params)
+        return self._request_margin_api("post", "bnbBurn", signed=True, data=params)
 
     def get_bnb_burn_spot_margin(self, **params):
         """Get BNB Burn Status
@@ -2874,7 +2910,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'bnbBurn', signed=True, data=params)
+        return self._request_margin_api("get", "bnbBurn", signed=True, data=params)
 
     def get_margin_price_index(self, **params):
         """Query margin priceIndex
@@ -2901,7 +2937,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/priceIndex', data=params)
+        return self._request_margin_api("get", "margin/priceIndex", data=params)
 
     def transfer_margin_to_spot(self, **params):
         """Execute transfer between cross-margin account and spot account.
@@ -2930,8 +2966,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params['type'] = 2
-        return self._request_margin_api('post', 'margin/transfer', signed=True, data=params)
+        params["type"] = 2
+        return self._request_margin_api(
+            "post", "margin/transfer", signed=True, data=params
+        )
 
     def transfer_spot_to_margin(self, **params):
         """Execute transfer between spot account and cross-margin account.
@@ -2960,9 +2998,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params['type'] = 1
-        return self._request_margin_api('post', 'margin/transfer', signed=True, data=params)
-
+        params["type"] = 1
+        return self._request_margin_api(
+            "post", "margin/transfer", signed=True, data=params
+        )
 
     def transfer_isolated_margin_to_spot(self, **params):
         """Execute transfer between isolated margin account and spot account.
@@ -2994,9 +3033,11 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params['transFrom'] = "ISOLATED_MARGIN"
-        params['transTo'] = "SPOT"
-        return self._request_margin_api('post', 'margin/isolated/transfer', signed=True, data=params)
+        params["transFrom"] = "ISOLATED_MARGIN"
+        params["transTo"] = "SPOT"
+        return self._request_margin_api(
+            "post", "margin/isolated/transfer", signed=True, data=params
+        )
 
     def transfer_spot_to_isolated_margin(self, **params):
         """Execute transfer between spot account and isolated margin account.
@@ -3028,9 +3069,11 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params['transFrom'] = "SPOT"
-        params['transTo'] = "ISOLATED_MARGIN"
-        return self._request_margin_api('post', 'margin/isolated/transfer', signed=True, data=params)
+        params["transFrom"] = "SPOT"
+        params["transTo"] = "ISOLATED_MARGIN"
+        return self._request_margin_api(
+            "post", "margin/isolated/transfer", signed=True, data=params
+        )
 
     def create_margin_loan(self, **params):
         """Apply for a loan in cross-margin or isolated-margin account.
@@ -3066,7 +3109,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'margin/loan', signed=True, data=params)
+        return self._request_margin_api("post", "margin/loan", signed=True, data=params)
 
     def repay_margin_loan(self, **params):
         """Repay loan in cross-margin or isolated-margin account.
@@ -3104,7 +3147,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'margin/repay', signed=True, data=params)
+        return self._request_margin_api(
+            "post", "margin/repay", signed=True, data=params
+        )
 
     def create_margin_order(self, **params):
         """Post a new order for margin account.
@@ -3225,7 +3270,9 @@ class Client(object):
             BinanceOrderInactiveSymbolException
 
         """
-        return self._request_margin_api('post', 'margin/order', signed=True, data=params)
+        return self._request_margin_api(
+            "post", "margin/order", signed=True, data=params
+        )
 
     def cancel_margin_order(self, **params):
         """Cancel an active order for margin account.
@@ -3268,7 +3315,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('delete', 'margin/order', signed=True, data=params)
+        return self._request_margin_api(
+            "delete", "margin/order", signed=True, data=params
+        )
 
     def get_margin_loan_details(self, **params):
         """Query loan record
@@ -3312,7 +3361,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/loan', signed=True, data=params)
+        return self._request_margin_api("get", "margin/loan", signed=True, data=params)
 
     def get_margin_repay_details(self, **params):
         """Query repay record
@@ -3362,7 +3411,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/repay', signed=True, data=params)
+        return self._request_margin_api("get", "margin/repay", signed=True, data=params)
 
     def get_margin_order(self, **params):
         """Query margin accounts order
@@ -3408,7 +3457,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/order', signed=True, data=params)
+        return self._request_margin_api("get", "margin/order", signed=True, data=params)
 
     def get_open_margin_orders(self, **params):
         """Query margin accounts open orders
@@ -3455,7 +3504,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/openOrders', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "margin/openOrders", signed=True, data=params
+        )
 
     def get_all_margin_orders(self, **params):
         """Query all margin accounts orders
@@ -3514,7 +3565,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/allOrders', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "margin/allOrders", signed=True, data=params
+        )
 
     def get_margin_trades(self, **params):
         """Query margin accounts trades
@@ -3572,7 +3625,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/myTrades', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "margin/myTrades", signed=True, data=params
+        )
 
     def get_max_margin_loan(self, **params):
         """Query max borrow amount for an asset
@@ -3595,7 +3650,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/maxBorrowable', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "margin/maxBorrowable", signed=True, data=params
+        )
 
     def get_max_margin_transfer(self, **params):
         """Query max transfer-out amount
@@ -3618,9 +3675,11 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'margin/maxTransferable', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "margin/maxTransferable", signed=True, data=params
+        )
 
-    # Cross-margin 
+    # Cross-margin
 
     def margin_stream_get_listen_key(self):
         """Start a new cross-margin data stream and return the listen key
@@ -3642,8 +3701,8 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        res = self._request_margin_api('post', 'userDataStream', signed=False, data={})
-        return res['listenKey']
+        res = self._request_margin_api("post", "userDataStream", signed=False, data={})
+        return res["listenKey"]
 
     def margin_stream_keepalive(self, listenKey):
         """PING a cross-margin data stream to prevent a time out.
@@ -3662,10 +3721,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params = {
-            'listenKey': listenKey
-        }
-        return self._request_margin_api('put', 'userDataStream', signed=False, data=params)
+        params = {"listenKey": listenKey}
+        return self._request_margin_api(
+            "put", "userDataStream", signed=False, data=params
+        )
 
     def margin_stream_close(self, listenKey):
         """Close out a cross-margin data stream.
@@ -3684,12 +3743,12 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params = {
-            'listenKey': listenKey
-        }
-        return self._request_margin_api('delete', 'userDataStream', signed=False, data=params)
+        params = {"listenKey": listenKey}
+        return self._request_margin_api(
+            "delete", "userDataStream", signed=False, data=params
+        )
 
-    # Isolated margin 
+    # Isolated margin
 
     def isolated_margin_stream_get_listen_key(self, symbol):
         """Start a new isolated margin data stream and return the listen key
@@ -3714,11 +3773,11 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params = {
-            'symbol': symbol
-        }
-        res = self._request_margin_api('post', 'userDataStream/isolated', signed=False, data=params)
-        return res['listenKey']
+        params = {"symbol": symbol}
+        res = self._request_margin_api(
+            "post", "userDataStream/isolated", signed=False, data=params
+        )
+        return res["listenKey"]
 
     def isolated_margin_stream_keepalive(self, symbol, listenKey):
         """PING an isolated margin data stream to prevent a time out.
@@ -3739,11 +3798,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params = {
-            'symbol': symbol,
-            'listenKey': listenKey
-        }
-        return self._request_margin_api('put', 'userDataStream/isolated', signed=False, data=params)
+        params = {"symbol": symbol, "listenKey": listenKey}
+        return self._request_margin_api(
+            "put", "userDataStream/isolated", signed=False, data=params
+        )
 
     def isolated_margin_stream_close(self, symbol, listenKey):
         """Close out an isolated margin data stream.
@@ -3764,11 +3822,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        params = {
-            'symbol': symbol,
-            'listenKey': listenKey
-        }
-        return self._request_margin_api('delete', 'userDataStream/isolated', signed=False, data=params)
+        params = {"symbol": symbol, "listenKey": listenKey}
+        return self._request_margin_api(
+            "delete", "userDataStream/isolated", signed=False, data=params
+        )
 
     # Lending Endpoints
 
@@ -3778,7 +3835,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/spot/en/#get-flexible-product-list-user_data
 
         """
-        return self._request_margin_api('get', 'lending/daily/product/list', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "lending/daily/product/list", signed=True, data=params
+        )
 
     def get_lending_daily_quota_left(self, **params):
         """Get Left Daily Purchase Quota of Flexible Product.
@@ -3786,7 +3845,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/spot/en/#get-left-daily-purchase-quota-of-flexible-product-user_data
 
         """
-        return self._request_margin_api('get', 'lending/daily/userLeftQuota', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "lending/daily/userLeftQuota", signed=True, data=params
+        )
 
     def purchase_lending_product(self, **params):
         """Purchase Flexible Product
@@ -3794,7 +3855,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/spot/en/#purchase-flexible-product-user_data
 
         """
-        return self._request_margin_api('post', 'lending/daily/purchase', signed=True, data=params)
+        return self._request_margin_api(
+            "post", "lending/daily/purchase", signed=True, data=params
+        )
 
     def get_lending_daily_redemption_quota(self, **params):
         """Get Left Daily Redemption Quota of Flexible Product
@@ -3802,7 +3865,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/spot/en/#get-left-daily-redemption-quota-of-flexible-product-user_data
 
         """
-        return self._request_margin_api('get', 'lending/daily/userRedemptionQuota', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "lending/daily/userRedemptionQuota", signed=True, data=params
+        )
 
     def redeem_lending_product(self, **params):
         """Redeem Flexible Product
@@ -3810,7 +3875,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/spot/en/#redeem-flexible-product-user_data
 
         """
-        return self._request_margin_api('post', 'lending/daily/redeem', signed=True, data=params)
+        return self._request_margin_api(
+            "post", "lending/daily/redeem", signed=True, data=params
+        )
 
     def get_lending_position(self, **params):
         """Get Flexible Product Position
@@ -3818,7 +3885,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/spot/en/#get-flexible-product-position-user_data
 
         """
-        return self._request_margin_api('get', 'lending/daily/token/position', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "lending/daily/token/position", signed=True, data=params
+        )
 
     def get_fixed_activity_project_list(self, **params):
         """Get Fixed and Activity Project List
@@ -3868,7 +3937,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
         
         """
-        return self._request_margin_api('get', 'lending/project/list', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "lending/project/list", signed=True, data=params
+        )
 
     def get_lending_account(self, **params):
         """Get Lending Account Details
@@ -3876,7 +3947,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/spot/en/#lending-account-user_data
 
         """
-        return self._request_margin_api('get', 'lending/union/account', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "lending/union/account", signed=True, data=params
+        )
 
     def get_lending_purchase_history(self, **params):
         """Get Lending Purchase History
@@ -3884,7 +3957,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/spot/en/#get-purchase-record-user_data
 
         """
-        return self._request_margin_api('get', 'lending/union/purchaseRecord', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "lending/union/purchaseRecord", signed=True, data=params
+        )
 
     def get_lending_redemption_history(self, **params):
         """Get Lending Redemption History
@@ -3892,7 +3967,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/spot/en/#get-redemption-record-user_data
 
         """
-        return self._request_margin_api('get', 'lending/union/redemptionRecord', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "lending/union/redemptionRecord", signed=True, data=params
+        )
 
     def get_lending_interest_history(self, **params):
         """Get Lending Interest History
@@ -3900,7 +3977,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/spot/en/#get-interest-history-user_data-2
 
         """
-        return self._request_margin_api('get', 'lending/union/interestHistory', signed=True, data=params)
+        return self._request_margin_api(
+            "get", "lending/union/interestHistory", signed=True, data=params
+        )
 
     def change_fixed_activity_to_daily_position(self, **params):
         """Change Fixed/Activity Position to Daily Position
@@ -3908,7 +3987,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/spot/en/#change-fixed-activity-position-to-daily-position-user_data
 
         """
-        return self._request_margin_api('post', 'lending/positionChanged', signed=True, data=params)
+        return self._request_margin_api(
+            "post", "lending/positionChanged", signed=True, data=params
+        )
 
     # Sub Accounts
 
@@ -3959,7 +4040,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_withdraw_api('get', 'sub-account/list.html', True, data=params)
+        return self._request_withdraw_api(
+            "get", "sub-account/list.html", True, data=params
+        )
 
     def get_sub_account_transfer_history(self, **params):
         """Query Sub-account Transfer History.
@@ -4006,7 +4089,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_withdraw_api('get', 'sub-account/transfer/history.html', True, data=params)
+        return self._request_withdraw_api(
+            "get", "sub-account/transfer/history.html", True, data=params
+        )
 
     def create_sub_account_transfer(self, **params):
         """Execute sub-account transfer
@@ -4036,8 +4121,10 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_withdraw_api('post', 'sub-account/transfer.html', True, data=params)
-    
+        return self._request_withdraw_api(
+            "post", "sub-account/transfer.html", True, data=params
+        )
+
     def get_sub_account_futures_transfer_history(self, **params):
         """Query Sub-account Futures Transfer History.
 
@@ -4086,7 +4173,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'sub-account/futures/internalTransfer', True, data=params)
+        return self._request_margin_api(
+            "get", "sub-account/futures/internalTransfer", True, data=params
+        )
 
     def create_sub_account_futures_transfer(self, **params):
         """Execute sub-account Futures transfer
@@ -4118,7 +4207,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'sub-account/futures/internalTransfer', True, data=params)
+        return self._request_margin_api(
+            "post", "sub-account/futures/internalTransfer", True, data=params
+        )
 
     def get_sub_account_assets(self, **params):
         """Fetch sub-account assets
@@ -4170,7 +4261,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_withdraw_api('get', 'sub-account/assets.html', True, data=params)
+        return self._request_withdraw_api(
+            "get", "sub-account/assets.html", True, data=params
+        )
 
     def query_subaccount_spot_summary(self, **params):
         """Query Sub-account Spot Assets Summary (For Master Account)
@@ -4208,7 +4301,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'sub-account/spotSummary', True, data=params)
+        return self._request_margin_api(
+            "get", "sub-account/spotSummary", True, data=params
+        )
 
     def get_subaccount_deposit_address(self, **params):
         """Get Sub-account Deposit Address (For Master Account)
@@ -4238,7 +4333,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'capital/deposit/subAddress', True, data=params)
+        return self._request_margin_api(
+            "get", "capital/deposit/subAddress", True, data=params
+        )
 
     def get_subaccount_deposit_history(self, **params):
         """Get Sub-account Deposit History (For Master Account)
@@ -4296,7 +4393,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'capital/deposit/subHisrec', True, data=params)
+        return self._request_margin_api(
+            "get", "capital/deposit/subHisrec", True, data=params
+        )
 
     def get_subaccount_futures_margin_status(self, **params):
         """Get Sub-account's Status on Margin/Futures (For Master Account)
@@ -4327,7 +4426,7 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'sub-account/status', True, data=params)
+        return self._request_margin_api("get", "sub-account/status", True, data=params)
 
     def enable_subaccount_margin(self, **params):
         """Enable Margin for Sub-account (For Master Account)
@@ -4354,7 +4453,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'sub-account/margin/enable', True, data=params)
+        return self._request_margin_api(
+            "post", "sub-account/margin/enable", True, data=params
+        )
 
     def get_subaccount_margin_details(self, **params):
         """Get Detail on Sub-account's Margin Account (For Master Account)
@@ -4421,7 +4522,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'sub-account/margin/account', True, data=params)
+        return self._request_margin_api(
+            "get", "sub-account/margin/account", True, data=params
+        )
 
     def get_subaccount_margin_summary(self, **params):
         """Get Summary of Sub-account's Margin Account (For Master Account)
@@ -4458,7 +4561,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'sub-account/margin/accountSummary', True, data=params)
+        return self._request_margin_api(
+            "get", "sub-account/margin/accountSummary", True, data=params
+        )
 
     def enable_subaccount_futures(self, **params):
         """Enable Futures for Sub-account (For Master Account)
@@ -4485,7 +4590,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'sub-account/futures/enable', True, data=params)
+        return self._request_margin_api(
+            "post", "sub-account/futures/enable", True, data=params
+        )
 
     def get_subaccount_futures_details(self, **params):
         """Get Detail on Sub-account's Futures Account (For Master Account)
@@ -4535,7 +4642,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'sub-account/futures/account', True, data=params)
+        return self._request_margin_api(
+            "get", "sub-account/futures/account", True, data=params
+        )
 
     def get_subaccount_futures_summary(self, **params):
         """Get Summary of Sub-account's Futures Account (For Master Account)
@@ -4587,7 +4696,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'sub-account/futures/accountSummary', True, data=params)
+        return self._request_margin_api(
+            "get", "sub-account/futures/accountSummary", True, data=params
+        )
 
     def get_subaccount_futures_positionrisk(self, **params):
         """Get Futures Position-Risk of Sub-account (For Master Account)
@@ -4619,7 +4730,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'sub-account/futures/positionRisk', True, data=params)
+        return self._request_margin_api(
+            "get", "sub-account/futures/positionRisk", True, data=params
+        )
 
     def make_subaccount_futures_transfer(self, **params):
         """Futures Transfer for Sub-account (For Master Account)
@@ -4649,7 +4762,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'sub-account/futures/transfer', True, data=params)
+        return self._request_margin_api(
+            "post", "sub-account/futures/transfer", True, data=params
+        )
 
     def make_subaccount_margin_transfer(self, **params):
         """Margin Transfer for Sub-account (For Master Account)
@@ -4677,7 +4792,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'sub-account/margin/transfer', True, data=params)
+        return self._request_margin_api(
+            "post", "sub-account/margin/transfer", True, data=params
+        )
 
     def make_subaccount_to_subaccount_transfer(self, **params):
         """Transfer to Sub-account of Same Master (For Sub-account)
@@ -4704,7 +4821,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'sub-account/transfer/subToSub', True, data=params)
+        return self._request_margin_api(
+            "post", "sub-account/transfer/subToSub", True, data=params
+        )
 
     def make_subaccount_to_master_transfer(self, **params):
         """Transfer to Master (For Sub-account)
@@ -4729,7 +4848,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'sub-account/transfer/subToMaster', True, data=params)
+        return self._request_margin_api(
+            "post", "sub-account/transfer/subToMaster", True, data=params
+        )
 
     def get_subaccount_transfer_history(self, **params):
         """Sub-account Transfer History (For Sub-account)
@@ -4779,7 +4900,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'sub-account/transfer/subUserHistory', True, data=params)
+        return self._request_margin_api(
+            "get", "sub-account/transfer/subUserHistory", True, data=params
+        )
 
     def make_universal_transfer(self, **params):
         """Universal Transfer (For Master Account)
@@ -4812,7 +4935,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('post', 'sub-account/universalTransfer', True, data=params)
+        return self._request_margin_api(
+            "post", "sub-account/universalTransfer", True, data=params
+        )
 
     def get_universal_transfer_history(self, **params):
         """Universal Transfer (For Master Account)
@@ -4866,7 +4991,9 @@ class Client(object):
         :raises: BinanceRequestException, BinanceAPIException
 
         """
-        return self._request_margin_api('get', 'sub-account/universalTransfer', True, data=params)
+        return self._request_margin_api(
+            "get", "sub-account/universalTransfer", True, data=params
+        )
 
     # Futures API
 
@@ -4876,7 +5003,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#test-connectivity
 
         """
-        return self._request_futures_api('get', 'ping')
+        return self._request_futures_api("get", "ping")
 
     def futures_time(self):
         """Test connectivity to the Rest API and get the current server time.
@@ -4884,7 +5011,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#check-server-time
 
         """
-        return self._request_futures_api('get', 'time')
+        return self._request_futures_api("get", "time")
 
     def futures_exchange_info(self):
         """Current exchange trading rules and symbol information
@@ -4892,7 +5019,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#exchange-information-market_data
 
         """
-        return self._request_futures_api('get', 'exchangeInfo')
+        return self._request_futures_api("get", "exchangeInfo")
 
     def futures_order_book(self, **params):
         """Get the Order Book for the market
@@ -4900,7 +5027,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#order-book-market_data
 
         """
-        return self._request_futures_api('get', 'depth', data=params)
+        return self._request_futures_api("get", "depth", data=params)
 
     def futures_recent_trades(self, **params):
         """Get recent trades (up to last 500).
@@ -4908,7 +5035,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#recent-trades-list-market_data
 
         """
-        return self._request_futures_api('get', 'trades', data=params)
+        return self._request_futures_api("get", "trades", data=params)
 
     def futures_historical_trades(self, **params):
         """Get older market historical trades.
@@ -4916,7 +5043,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#old-trades-lookup-market_data
 
         """
-        return self._request_futures_api('get', 'historicalTrades', data=params)
+        return self._request_futures_api("get", "historicalTrades", data=params)
 
     def futures_aggregate_trades(self, **params):
         """Get compressed, aggregate trades. Trades that fill at the time, from the same order, with the same
@@ -4925,7 +5052,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#compressed-aggregate-trades-list-market_data
 
         """
-        return self._request_futures_api('get', 'aggTrades', data=params)
+        return self._request_futures_api("get", "aggTrades", data=params)
 
     def futures_klines(self, **params):
         """Kline/candlestick bars for a symbol. Klines are uniquely identified by their open time.
@@ -4933,7 +5060,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#kline-candlestick-data-market_data
 
         """
-        return self._request_futures_api('get', 'klines', data=params)
+        return self._request_futures_api("get", "klines", data=params)
 
     def futures_mark_price(self, **params):
         """Get Mark Price and Funding Rate
@@ -4941,7 +5068,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#mark-price-market_data
 
         """
-        return self._request_futures_api('get', 'premiumIndex', data=params)
+        return self._request_futures_api("get", "premiumIndex", data=params)
 
     def futures_funding_rate(self, **params):
         """Get funding rate history
@@ -4949,7 +5076,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#get-funding-rate-history-market_data
 
         """
-        return self._request_futures_api('get', 'fundingRate', data=params)
+        return self._request_futures_api("get", "fundingRate", data=params)
 
     def futures_ticker(self, **params):
         """24 hour rolling window price change statistics.
@@ -4957,7 +5084,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#24hr-ticker-price-change-statistics-market_data
 
         """
-        return self._request_futures_api('get', 'ticker/24hr', data=params)
+        return self._request_futures_api("get", "ticker/24hr", data=params)
 
     def futures_symbol_ticker(self, **params):
         """Latest price for a symbol or symbols.
@@ -4965,7 +5092,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#symbol-price-ticker-market_data
 
         """
-        return self._request_futures_api('get', 'ticker/price', data=params)
+        return self._request_futures_api("get", "ticker/price", data=params)
 
     def futures_orderbook_ticker(self, **params):
         """Best price/qty on the order book for a symbol or symbols.
@@ -4973,7 +5100,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#symbol-order-book-ticker-market_data
 
         """
-        return self._request_futures_api('get', 'ticker/bookTicker', data=params)
+        return self._request_futures_api("get", "ticker/bookTicker", data=params)
 
     def futures_liquidation_orders(self, **params):
         """Get all liquidation orders
@@ -4981,7 +5108,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#get-all-liquidation-orders-market_data
 
         """
-        return self._request_futures_api('get', 'ticker/allForceOrders', data=params)
+        return self._request_futures_api("get", "ticker/allForceOrders", data=params)
 
     def futures_open_interest(self, **params):
         """Get present open interest of a specific symbol.
@@ -4989,7 +5116,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#open-interest-market_data
 
         """
-        return self._request_futures_api('get', 'ticker/openInterest', data=params)
+        return self._request_futures_api("get", "ticker/openInterest", data=params)
 
     def futures_leverage_bracket(self, **params):
         """Notional and Leverage Brackets
@@ -4997,7 +5124,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#notional-and-leverage-brackets-market_data
 
         """
-        return self._request_futures_api('get', 'leverageBracket', True, data=params)
+        return self._request_futures_api("get", "leverageBracket", True, data=params)
 
     def futures_account_transfer(self, **params):
         """Execute transfer between spot account and futures account.
@@ -5005,7 +5132,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#new-future-account-transfer
 
         """
-        return self._request_margin_api('post', 'futures/transfer', True, data=params)
+        return self._request_margin_api("post", "futures/transfer", True, data=params)
 
     def transfer_history(self, **params):
         """Get future account transaction history list
@@ -5013,7 +5140,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#get-future-account-transaction-history-list-user_data
 
         """
-        return self._request_margin_api('get', 'futures/transfer', True, data=params)
+        return self._request_margin_api("get", "futures/transfer", True, data=params)
 
     def futures_create_order(self, **params):
         """Send in a new order.
@@ -5021,7 +5148,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#new-order-trade
 
         """
-        return self._request_futures_api('post', 'order', True, data=params)
+        return self._request_futures_api("post", "order", True, data=params)
 
     def futures_get_order(self, **params):
         """Check an order's status.
@@ -5029,7 +5156,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#query-order-user_data
 
         """
-        return self._request_futures_api('get', 'order', True, data=params)
+        return self._request_futures_api("get", "order", True, data=params)
 
     def futures_get_open_orders(self, **params):
         """Get all open orders on a symbol.
@@ -5037,7 +5164,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#current-open-orders-user_data
 
         """
-        return self._request_futures_api('get', 'openOrders', True, data=params)
+        return self._request_futures_api("get", "openOrders", True, data=params)
 
     def futures_get_all_orders(self, **params):
         """Get all futures account orders; active, canceled, or filled.
@@ -5045,7 +5172,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#all-orders-user_data
 
         """
-        return self._request_futures_api('get', 'allOrders', True, data=params)
+        return self._request_futures_api("get", "allOrders", True, data=params)
 
     def futures_cancel_order(self, **params):
         """Cancel an active futures order.
@@ -5053,7 +5180,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#cancel-order-trade
 
         """
-        return self._request_futures_api('delete', 'order', True, data=params)
+        return self._request_futures_api("delete", "order", True, data=params)
 
     def futures_cancel_all_open_orders(self, **params):
         """Cancel all open futures orders
@@ -5061,7 +5188,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#cancel-all-open-orders-trade
 
         """
-        return self._request_futures_api('delete', 'allOpenOrders', True, data=params)
+        return self._request_futures_api("delete", "allOpenOrders", True, data=params)
 
     def futures_cancel_orders(self, **params):
         """Cancel multiple futures orders
@@ -5069,7 +5196,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#cancel-multiple-orders-trade
 
         """
-        return self._request_futures_api('delete', 'batchOrders', True, data=params)
+        return self._request_futures_api("delete", "batchOrders", True, data=params)
 
     def futures_account_balance(self, **params):
         """Get futures account balance
@@ -5077,7 +5204,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#future-account-balance-user_data
 
         """
-        return self._request_futures_api('get', 'balance', True, data=params)
+        return self._request_futures_api("get", "balance", True, data=params)
 
     def futures_account(self, **params):
         """Get current account information.
@@ -5085,7 +5212,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#account-information-user_data
 
         """
-        return self._request_futures_api('get', 'account', True, data=params)
+        return self._request_futures_api("get", "account", True, data=params)
 
     def futures_change_leverage(self, **params):
         """Change user's initial leverage of specific symbol market
@@ -5093,7 +5220,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#change-initial-leverage-trade
 
         """
-        return self._request_futures_api('post', 'leverage', True, data=params)
+        return self._request_futures_api("post", "leverage", True, data=params)
 
     def futures_change_margin_type(self, **params):
         """Change the margin type for a symbol
@@ -5101,7 +5228,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#change-margin-type-trade
 
         """
-        return self._request_futures_api('post', 'marginType', True, data=params)
+        return self._request_futures_api("post", "marginType", True, data=params)
 
     def futures_change_position_margin(self, **params):
         """Change the position margin for a symbol
@@ -5109,7 +5236,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#modify-isolated-position-margin-trade
 
         """
-        return self._request_futures_api('post', 'positionMargin', True, data=params)
+        return self._request_futures_api("post", "positionMargin", True, data=params)
 
     def futures_position_margin_history(self, **params):
         """Get position margin change history
@@ -5117,7 +5244,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#get-postion-margin-change-history-trade
 
         """
-        return self._request_futures_api('get', 'positionMargin/history', True, data=params)
+        return self._request_futures_api(
+            "get", "positionMargin/history", True, data=params
+        )
 
     def futures_position_information(self, **params):
         """Get position information
@@ -5125,7 +5254,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#position-information-user_data
 
         """
-        return self._request_futures_api('get', 'positionRisk', True, data=params)
+        return self._request_futures_api("get", "positionRisk", True, data=params)
 
     def futures_account_trades(self, **params):
         """Get trades for the authenticated account and symbol.
@@ -5133,7 +5262,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#account-trade-list-user_data
 
         """
-        return self._request_futures_api('get', 'userTrades', True, data=params)
+        return self._request_futures_api("get", "userTrades", True, data=params)
 
     def futures_income_history(self, **params):
         """Get income history for authenticated account
@@ -5141,7 +5270,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#get-income-history-user_data
 
         """
-        return self._request_futures_api('get', 'income', True, data=params)
+        return self._request_futures_api("get", "income", True, data=params)
 
     def futures_change_position_mode(self, **params):
         """Change position mode for authenticated account
@@ -5149,7 +5278,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#change-position-mode-trade
         
         """
-        return self._request_futures_api('post', 'positionSide/dual', True, data=params)
+        return self._request_futures_api("post", "positionSide/dual", True, data=params)
 
     def futures_get_position_mode(self, **params):
         """Get position mode for authenticated account
@@ -5157,7 +5286,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#get-current-position-mode-user_data
         
         """
-        return self._request_futures_api('get', 'positionSide/dual', True, data=params)
+        return self._request_futures_api("get", "positionSide/dual", True, data=params)
 
     # COIN Futures API
     def futures_coin_ping(self):
@@ -5463,7 +5592,9 @@ class Client(object):
         https://binance-docs.github.io/apidocs/delivery/en/#position-information-user_data
 
         """
-        return self._request_futures_coin_api("get", "positionRisk", True, data=params)
+        return self._request_futures_coin_api(
+            "get", "positionRisk", True,  data=params
+        )
 
     def futures_coin_account_trades(self, **params):
         """Get trades for the authenticated account and symbol.
@@ -5486,13 +5617,17 @@ class Client(object):
 
         https://binance-docs.github.io/apidocs/delivery/en/#change-position-mode-trade
         """
-        return self._request_futures_coin_api("post", "positionSide/dual", True, data=params)
-    
+        return self._request_futures_coin_api(
+            "post", "positionSide/dual", True, data=params
+        )
+
     def futures_coin_get_position_mode(self, **params):
         """Get user's position mode (Hedge Mode or One-way Mode ) on EVERY symbol
 
         https://binance-docs.github.io/apidocs/delivery/en/#get-current-position-mode-user_data
 
         """
-        return self._request_futures_coin_api("get", "positionSide/dual", True, data=params)
+        return self._request_futures_coin_api(
+            "get", "positionSide/dual", True, data=params
+        )
 
