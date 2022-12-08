@@ -1,5 +1,5 @@
 autobahn==18.7.1
-certifi==2019.11.28
+certifi==2022.12.7
 cryptography==2.3
 dateparser==0.7.0
 pyOpenSSL==19.0.0
