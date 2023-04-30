@@ -16,13 +16,14 @@ async def loop_helper(callback):
 
 
 class AsyncClient:
-    def __init__(self, api_key=None, api_secret=None):
+    def __init__(self, api_key=None, api_secret=None, **kwargs):
         self.api_key = api_key
         self.api_secret = api_secret
+        self.request_kwargs = kwargs
 
     @property
     def client(self):
-        return Client(api_key=self.api_key, api_secret=self.api_secret)
+        return Client(api_key=self.api_key, api_secret=self.api_secret, **self.request_kwargs)
 
     def sync_client(self):
         return self.client
