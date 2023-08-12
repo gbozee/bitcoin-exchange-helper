@@ -155,8 +155,9 @@ class Client(object):
     def _create_website_uri(self, path):
         return self.WEBSITE_URL + "/" + path
 
-    def _create_futures_api_uri(self, path):
-        return self.FUTURES_URL + "/" + self.FUTURES_API_VERSION + "/" + path
+    def _create_futures_api_uri(self, path,version=1):
+        options = {1: self.FUTURES_API_VERSION, 2: self.FUTURES_API_VERSION2}
+        return self.FUTURES_URL + "/" + options[version] + "/" + path
 
     def _create_futures_coin_api_url(self, path, version=1):
         options = {1: self.FUTURES_API_VERSION, 2: self.FUTURES_API_VERSION2}
@@ -260,8 +261,8 @@ class Client(object):
 
         return self._request(method, uri, signed, **kwargs)
 
-    def _request_futures_api(self, method, path, signed=False, **kwargs):
-        uri = self._create_futures_api_uri(path)
+    def _request_futures_api(self, method, path, signed=False,version=1, **kwargs):
+        uri = self._create_futures_api_uri(path,version=version)
 
         return self._request(method, uri, signed, True, **kwargs)
 
@@ -5274,7 +5275,7 @@ class Client(object):
         https://binance-docs.github.io/apidocs/futures/en/#position-information-user_data
 
         """
-        return self._request_futures_api("get", "positionRisk", True, data=params)
+        return self._request_futures_api("get", "positionRisk", True,version=2, data=params)
 
     def futures_account_trades(self, **params):
         """Get trades for the authenticated account and symbol.
